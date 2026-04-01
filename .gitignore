@@ -1,0 +1,78 @@
+# Anthropic 版权源码
+src/
+
+# OpenClaw 核心二进制和资源（用户安装时自带）
+dist/
+skills/
+openclaw.mjs
+package.json
+package-lock.json
+assets/avatar-placeholder.svg
+assets/chrome-extension/
+assets/dmg-background*.png
+
+# 依赖包
+node_modules/
+
+# 用户个人数据
+agents/
+data/sessions/
+data/openclaw.json
+data/workspace/memory/
+data/workspace/MEMORY.md
+data/workspace/SOUL.md
+data/workspace/USER.md
+data/workspace/TOOLS.md
+data/workspace/IDENTITY.md
+data/workspace/HEARTBEAT.md
+data/workspace/BOOTSTRAP.md
+
+# OpenClaw 文档（用户安装时自带）
+docs/zh-CN/
+docs/ja-JP/
+docs/.i18n/
+docs/assets/
+docs/images/
+docs/reference/templates/
+docs/security/
+docs/plugins/
+docs/providers/
+docs/nodes/
+docs/platforms/
+docs/channels/
+docs/tools/
+docs/cli/
+docs/concepts/
+docs/automation/
+docs/gateway/
+docs/install/
+docs/help/
+docs/start/
+docs/web/
+docs/debug/
+docs/diagnostics/
+docs/*.md
+docs/*.json
+docs/*.css
+docs/*.js
+
+# 日志
+logs/
+/tmp/
+*.log
+
+# 密钥
+.env
+.env.local
+*.pem
+*.key
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+
+# launchd
+*.plist

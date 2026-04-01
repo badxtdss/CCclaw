@@ -1,0 +1,26 @@
+{
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "openrouter/anthropic/claude-sonnet-4",
+        "fallbacks": ["openrouter/free"]
+      }
+    },
+    "list": [
+      {
+        "id": "cc-main",
+        "default": true,
+        "name": "CCclaw",
+        "workspace": "./data/workspace"
+      }
+    ]
+  },
+  "gateway": {
+    "mode": "local",
+    "port": 19789,
+    "auth": {
+      "mode": "token",
+      "token": "your-token-here"
+    }
+  }
+}
