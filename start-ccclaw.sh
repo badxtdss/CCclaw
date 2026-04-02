@@ -4,7 +4,7 @@
 
 ACTION="${1:-start}"
 PIDFILE="/tmp/ccclaw-gateway.pid"
-PORT=19789
+PORT=18989
 
 case "$ACTION" in
   start)
