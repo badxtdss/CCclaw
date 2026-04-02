@@ -56,7 +56,18 @@ CCclaw 解决这两个问题：用工作流规范约束 AI 的行为，用专业
 
 ## 安装
 
-### 一行命令（推荐）
+### 桌面版（推荐）
+
+下载 .dmg 文件安装：
+
+| 平台 | 下载 |
+|------|------|
+| macOS (M1/M2/M3/M4) | [CCCLAW-0.3.4-mac-arm64.dmg](https://github.com/badxtdss/CCclaw/releases/download/v0.3.4/CCCLAW-0.3.4-mac-arm64.dmg) |
+| macOS (Intel) | [CCCLAW-0.3.4-mac-x64.dmg](https://github.com/badxtdss/CCclaw/releases/download/v0.3.4/CCCLAW-0.3.4-mac-x64.dmg) |
+
+所有版本：[Release v0.3.4](https://github.com/badxtdss/CCclaw/releases/tag/v0.3.4)
+
+### CLI 一行命令
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/badxtdss/CCclaw/main/install.sh | bash
