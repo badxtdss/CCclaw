@@ -18,7 +18,7 @@ function fsPath(filePath: string): string {
 import { getAllSettings } from '../utils/store';
 import { getApiKey, getDefaultProvider, getProvider } from '../utils/secure-storage';
 import { getProviderEnvVar, getKeyableProviderTypes } from '../utils/provider-registry';
-import { getOpenClawDir, getOpenClawEntryPath, isOpenClawPresent } from '../utils/paths';
+import { getCCCLAWConfigDir, getOpenClawDir, getOpenClawEntryPath, isOpenClawPresent } from '../utils/paths';
 import { getUvMirrorEnv } from '../utils/uv-env';
 import { cleanupDanglingWeChatPluginState, listConfiguredChannels, readOpenClawConfig } from '../utils/channel-config';
 import { syncGatewayTokenToConfig, syncBrowserConfigToOpenClaw, syncSessionIdleMinutesToOpenClaw, sanitizeOpenClawConfig } from '../utils/openclaw-auth';
@@ -55,7 +55,7 @@ const CHANNEL_PLUGIN_MAP: Record<string, { dirName: string; npmName: string }> =
 
 /**
  * OpenClaw 3.22+ ships Discord, Telegram, and other channels as built-in
- * extensions.  If a previous ClawX version copied one of these into
+ * extensions.  If a previous CCCLAW version copied one of these into
  * ~/.openclaw/extensions/, the broken copy overrides the working built-in
  * plugin and must be removed.
  */
@@ -198,7 +198,7 @@ export async function syncGatewayConfigBeforeLaunch(
 
     // Also ensure plugins referenced in plugins.allow are installed even if
     // they have no channels.X section yet (e.g. qqbot added via plugins.allow
-    // but never fully saved through ClawX UI).
+    // but never fully saved through CCCLAW UI).
     try {
       const rawCfg = await readOpenClawConfig();
       const allowList = Array.isArray(rawCfg.plugins?.allow) ? (rawCfg.plugins!.allow as string[]) : [];
@@ -329,7 +329,7 @@ export async function prepareGatewayLaunchContext(port: number): Promise<Gateway
     throw new Error(`OpenClaw entry script not found at: ${entryScript}`);
   }
 
-  const gatewayArgs = ['gateway', '--port', String(port), '--token', appSettings.gatewayToken, '--allow-unconfigured'];
+  const gatewayArgs = ['gateway', '--port', String(port), '--token', appSettings.gatewayToken, '--allow-unconfigured', '--profile', 'ccclaw'];
   const mode = app.isPackaged ? 'packaged' : 'dev';
 
   const platform = process.platform;
@@ -360,6 +360,7 @@ export async function prepareGatewayLaunchContext(port: number): Promise<Gateway
     ...uvEnv,
     ...proxyEnv,
     OPENCLAW_GATEWAY_TOKEN: appSettings.gatewayToken,
+    OPENCLAW_STATE_DIR: getCCCLAWConfigDir(),
     OPENCLAW_SKIP_CHANNELS: skipChannels ? '1' : '',
     CLAWDBOT_SKIP_CHANNELS: skipChannels ? '1' : '',
     OPENCLAW_NO_RESPAWN: '1',

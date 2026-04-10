@@ -1,6 +1,6 @@
-appId: app.clawx.desktop
-productName: ClawX
-copyright: Copyright © 2026 ClawX
+appId: app.ccclaw.desktop
+productName: CCCLAW
+copyright: Copyright © 2026 CCCLAW
 compression: maximum
 artifactName: ${productName}-${version}-${os}-${arch}.${ext}
 
@@ -59,7 +59,7 @@ publish:
     useMultipleRangeRequest: false
   - provider: github
     owner: ValueCell-ai
-    repo: ClawX
+    repo: CCCLAW
 
 # macOS Configuration
 mac:
@@ -80,14 +80,14 @@ mac:
         - x64
         - arm64
   darkModeSupport: true
-  hardenedRuntime: true
+  hardenedRuntime: false
   gatekeeperAssess: false
   entitlements: entitlements.mac.plist
   entitlementsInherit: entitlements.mac.plist
-  notarize: true
+  notarize: false
   extendInfo:
-    NSMicrophoneUsageDescription: ClawX requires microphone access for voice features
-    NSCameraUsageDescription: ClawX requires camera access for video features
+    NSMicrophoneUsageDescription: CCCLAW requires microphone access for voice features
+    NSCameraUsageDescription: CCCLAW requires camera access for video features
 
 dmg:
   # Explicit volume size prevents dmg-builder@1.2.0 auto-calculation from
@@ -133,8 +133,8 @@ nsis:
   differentialPackage: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  shortcutName: ClawX
-  uninstallDisplayName: ClawX
+  shortcutName: CCCLAW
+  uninstallDisplayName: CCCLAW
   license: LICENSE
   include: scripts/installer.nsh
   installerIcon: resources/icons/icon.ico
@@ -161,17 +161,17 @@ linux:
       arch:
         - x64
   category: Utility
-  maintainer: ClawX Team <public@valuecell.ai>
-  vendor: ClawX
+  maintainer: CCCLAW Team <public@valuecell.ai>
+  vendor: CCCLAW
   synopsis: AI Assistant powered by OpenClaw
-  description: ClawX is a graphical AI assistant application that integrates with OpenClaw Gateway to provide intelligent automation and assistance across multiple messaging platforms.
+  description: CCCLAW is a graphical AI assistant application that integrates with OpenClaw Gateway to provide intelligent automation and assistance across multiple messaging platforms.
   desktop:
     entry:
-      Name: ClawX
+      Name: CCCLAW
       Comment: AI Assistant powered by OpenClaw
       Categories: Utility;Network;
       Keywords: ai;assistant;automation;chat;
-      StartupWMClass: clawx
+      StartupWMClass: ccclaw
 
 appImage:
   license: LICENSE

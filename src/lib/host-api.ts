@@ -2,7 +2,7 @@ import { invokeIpc } from '@/lib/api-client';
 import { trackUiEvent } from './telemetry';
 import { normalizeAppError } from './error-model';
 
-const HOST_API_PORT = 3210;
+const HOST_API_PORT = 3211;
 const HOST_API_BASE = `http://127.0.0.1:${HOST_API_PORT}`;
 
 /** Cached Host API auth token, fetched once from the main process via IPC. */
@@ -144,7 +144,7 @@ function shouldFallbackToBrowser(message: string): boolean {
 
 function allowLocalhostFallback(): boolean {
   try {
-    return window.localStorage.getItem('clawx:allow-localhost-fallback') === '1';
+    return window.localStorage.getItem('ccclaw:allow-localhost-fallback') === '1';
   } catch {
     return false;
   }

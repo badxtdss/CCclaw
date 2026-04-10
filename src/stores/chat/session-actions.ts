@@ -131,7 +131,7 @@ export function createSessionActions(
                     if (firstUser) {
                       const labelText = getMessageText(firstUser.content).trim();
                       if (labelText) {
-                        const truncated = labelText.length > 50 ? `${labelText.slice(0, 50)}…` : labelText;
+                        const truncated = labelText.length > 80 ? `${labelText.slice(0, 80)}…` : labelText;
                         next.sessionLabels = { ...s.sessionLabels, [session.key]: truncated };
                       }
                     }

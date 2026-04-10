@@ -110,7 +110,7 @@ import {
   hasConfiguredCredentials,
   pickPreferredAccount,
 } from '@/lib/provider-accounts';
-import clawxIcon from '@/assets/logo.svg';
+import ccclawIcon from '@/assets/logo.svg';
 
 // Use the shared provider registry for setup providers
 const providers = SETUP_PROVIDERS;
@@ -326,7 +326,7 @@ function WelcomeContent() {
   return (
     <div data-testid="setup-welcome-step" className="text-center space-y-4">
       <div className="mb-4 flex justify-center">
-        <img src={clawxIcon} alt="ClawX" className="h-16 w-16" />
+        <img src={ccclawIcon} alt="CCCLAW" className="h-16 w-16" />
       </div>
       <h2 className="text-xl font-semibold">{t('welcome.title')}</h2>
       <p className="text-muted-foreground">
@@ -419,7 +419,7 @@ function RuntimeContent({ onStatusChange }: RuntimeContentProps) {
           ...prev,
           openclaw: {
             status: 'error',
-            message: `OpenClaw package not found at: ${openclawStatus.dir}`
+            message: `CCCLAW engine not found at: ${openclawStatus.dir}`
           },
         }));
       } else if (!openclawStatus.isBuilt) {
@@ -427,7 +427,7 @@ function RuntimeContent({ onStatusChange }: RuntimeContentProps) {
           ...prev,
           openclaw: {
             status: 'error',
-            message: 'OpenClaw package found but dist is missing'
+            message: 'CCCLAW engine found but dist is missing'
           },
         }));
       } else {
@@ -436,7 +436,7 @@ function RuntimeContent({ onStatusChange }: RuntimeContentProps) {
           ...prev,
           openclaw: {
             status: 'success',
-            message: `OpenClaw package ready${versionLabel}`
+            message: `CCCLAW engine ready${versionLabel}`
           },
         }));
       }

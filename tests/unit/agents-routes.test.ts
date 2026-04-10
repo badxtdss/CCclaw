@@ -60,7 +60,7 @@ describe('restartGatewayForAgentDeletion', () => {
     const { restartGatewayForAgentDeletion } = await import('@electron/api/routes/agents');
 
     const restart = vi.fn().mockResolvedValue(undefined);
-    const getStatus = vi.fn(() => ({ pid: 4321, port: 18789 }));
+    const getStatus = vi.fn(() => ({ pid: 4321, port: 18799 }));
 
     await restartGatewayForAgentDeletion({
       gatewayManager: {

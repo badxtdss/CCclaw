@@ -72,7 +72,7 @@ const defaultSettings = {
   launchAtStartup: false,
   telemetryEnabled: true,
   gatewayAutoStart: true,
-  gatewayPort: 18789,
+  gatewayPort: 18799,
   proxyEnabled: false,
   proxyServer: '',
   proxyHttpServer: '',
@@ -178,7 +178,7 @@ export const useSettingsStore = create<SettingsState>()(
       resetSettings: () => set(defaultSettings),
     }),
     {
-      name: 'clawx-settings',
+      name: 'ccclaw-settings',
     }
   )
 );

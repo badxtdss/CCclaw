@@ -18,6 +18,8 @@ import {
   ExternalLink,
   Trash2,
   Cpu,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSettingsStore } from '@/stores/settings';
@@ -123,6 +125,7 @@ export function Sidebar() {
   const switchSession = useChatStore((s) => s.switchSession);
   const newSession = useChatStore((s) => s.newSession);
   const deleteSession = useChatStore((s) => s.deleteSession);
+  const renameSession = useChatStore((s) => s.renameSession);
   const loadSessions = useChatStore((s) => s.loadSessions);
   const loadHistory = useChatStore((s) => s.loadHistory);
 
@@ -170,6 +173,9 @@ export function Sidebar() {
 
   const { t } = useTranslation(['common', 'chat']);
   const [sessionToDelete, setSessionToDelete] = useState<{ key: string; label: string } | null>(null);
+  const [renamingSession, setRenamingSession] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+  const [navExpanded, setNavExpanded] = useState(true);
   const [nowMs, setNowMs] = useState(INITIAL_NOW_MS);
 
   useEffect(() => {
@@ -227,9 +233,9 @@ export function Sidebar() {
       <div className={cn("flex items-center p-2 h-12", sidebarCollapsed ? "justify-center" : "justify-between")}>
         {!sidebarCollapsed && (
           <div className="flex items-center gap-2 px-2 overflow-hidden">
-            <img src={logoSvg} alt="ClawX" className="h-5 w-auto shrink-0" />
+            <img src={logoSvg} alt="CCCLAW" className="h-5 w-auto shrink-0" />
             <span className="text-sm font-semibold truncate whitespace-nowrap text-foreground/90">
-              ClawX
+              CCCLAW
             </span>
           </div>
         )}
@@ -257,7 +263,7 @@ export function Sidebar() {
             navigate('/');
           }}
           className={cn(
-            'flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[14px] font-medium transition-colors mb-2',
+            'flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[14px] font-medium transition-colors mb-1',
             'bg-black/5 dark:bg-accent shadow-none border border-transparent text-foreground',
             sidebarCollapsed && 'justify-center px-0',
           )}
@@ -268,7 +274,21 @@ export function Sidebar() {
           {!sidebarCollapsed && <span className="flex-1 text-left overflow-hidden text-ellipsis whitespace-nowrap">{t('sidebar.newChat')}</span>}
         </button>
 
-        {navItems.map((item) => (
+        {!sidebarCollapsed && (
+          <button
+            onClick={() => setNavExpanded(!navExpanded)}
+            className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-muted-foreground/60 tracking-tight hover:text-foreground/80 transition-colors"
+          >
+            {navExpanded ? (
+              <ChevronDown className="h-3 w-3" />
+            ) : (
+              <ChevronRight className="h-3 w-3" />
+            )}
+            <span>导航</span>
+          </button>
+        )}
+
+        {(sidebarCollapsed || navExpanded) && navItems.map((item) => (
           <NavItem
             key={item.to}
             {...item}
@@ -293,6 +313,11 @@ export function Sidebar() {
                     <div key={s.key} className="group relative flex items-center">
                       <button
                         onClick={() => { switchSession(s.key); navigate('/'); }}
+                        onDoubleClick={(e) => {
+                          e.stopPropagation();
+                          setRenamingSession(s.key);
+                          setRenameValue(getSessionLabel(s.key, s.displayName, s.label));
+                        }}
                         className={cn(
                           'w-full text-left rounded-lg px-2.5 py-1.5 text-[13px] transition-colors pr-7',
                           'hover:bg-black/5 dark:hover:bg-white/5',
@@ -305,7 +330,29 @@ export function Sidebar() {
                           <span className="shrink-0 rounded-full bg-black/[0.04] px-2 py-0.5 text-[10px] font-medium text-foreground/70 dark:bg-white/[0.08]">
                             {agentName}
                           </span>
-                          <span className="truncate">{getSessionLabel(s.key, s.displayName, s.label)}</span>
+                          {renamingSession === s.key ? (
+                            <input
+                              autoFocus
+                              value={renameValue}
+                              onChange={(e) => setRenameValue(e.target.value)}
+                              onBlur={() => {
+                                if (renameValue.trim()) renameSession(s.key, renameValue.trim());
+                                setRenamingSession(null);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  if (renameValue.trim()) renameSession(s.key, renameValue.trim());
+                                  setRenamingSession(null);
+                                } else if (e.key === 'Escape') {
+                                  setRenamingSession(null);
+                                }
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                              className="flex-1 min-w-0 bg-transparent border-b border-foreground/30 text-[13px] outline-none text-foreground"
+                            />
+                          ) : (
+                            <span className="truncate">{getSessionLabel(s.key, s.displayName, s.label)}</span>
+                          )}
                         </div>
                       </button>
                       <button

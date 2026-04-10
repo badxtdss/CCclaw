@@ -247,7 +247,7 @@ export function Settings() {
           setOpenclawCliError(null);
         } else {
           setOpenclawCliCommand('');
-          setOpenclawCliError(result.error || 'OpenClaw CLI unavailable');
+          setOpenclawCliError(result.error || 'CCCLAW CLI unavailable');
         }
       } catch (error) {
         if (cancelled) return;
@@ -1098,7 +1098,7 @@ export function Settings() {
                 <Button
                   variant="link"
                   className="h-auto p-0 text-[14px] text-blue-500 hover:text-blue-600 font-medium"
-                  onClick={() => window.electron.openExternal('https://github.com/ValueCell-ai/ClawX')}
+                  onClick={() => window.electron.openExternal('https://github.com/ValueCell-ai/CCCLAW')}
                 >
                   {t('about.github')}
                 </Button>

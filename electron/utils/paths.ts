@@ -24,7 +24,7 @@ function getElectronApp() {
     return (require('electron') as typeof import('electron')).app;
   }
 
-  const fallbackUserData = process.env.CLAWX_USER_DATA_DIR?.trim() || join(homedir(), '.clawx');
+  const fallbackUserData = process.env.CCCLAW_USER_DATA_DIR?.trim() || join(homedir(), '.ccclaw');
   const fallbackAppPath = process.cwd();
   const fallbackApp: ElectronAppLike = {
     isPackaged: false,
@@ -49,8 +49,29 @@ export function expandPath(path: string): string {
 
 /**
  * Get OpenClaw config directory
+ * CUSTOM: Use environment variable if set, otherwise default
  */
 export function getOpenClawConfigDir(): string {
+  const envConfig = process.env.OPENCLAW_CONFIG?.trim();
+  if (envConfig) {
+    // If OPENCLAW_CONFIG is a file path, get its directory
+    if (existsSync(envConfig)) {
+      return dirname(envConfig);
+    }
+    // If it's a directory path
+    const dirPath = envConfig.replace(/openclaw\.json$/, '');
+    if (existsSync(dirPath)) {
+      return dirPath;
+    }
+  }
+  
+  // Also check OPENCLAW_STATE_DIR
+  const envStateDir = process.env.OPENCLAW_STATE_DIR?.trim();
+  if (envStateDir && existsSync(envStateDir)) {
+    return envStateDir;
+  }
+  
+  // Default
   return join(homedir(), '.openclaw');
 }
 
@@ -62,21 +83,21 @@ export function getOpenClawSkillsDir(): string {
 }
 
 /**
- * Get ClawX config directory
+ * Get CCCLAW config directory
  */
-export function getClawXConfigDir(): string {
-  return join(homedir(), '.clawx');
+export function getCCCLAWConfigDir(): string {
+  return join(homedir(), '.ccclaw');
 }
 
 /**
- * Get ClawX logs directory
+ * Get CCCLAW logs directory
  */
 export function getLogsDir(): string {
   return join(getElectronApp().getPath('userData'), 'logs');
 }
 
 /**
- * Get ClawX data directory
+ * Get CCCLAW data directory
  */
 export function getDataDir(): string {
   return getElectronApp().getPath('userData');
@@ -111,14 +132,18 @@ export function getPreloadPath(): string {
 /**
  * Get OpenClaw package directory
  * - Production (packaged): from resources/openclaw (copied by electron-builder extraResources)
- * - Development: from node_modules/openclaw
+ * - Development: node_modules/openclaw (build/openclaw causes ESM/CJS module conflicts in dev)
+ * 
+ * CUSTOM: If /Volumes/硬盘盒/CCclaw/ exists and has openclaw.mjs, use that as the kernel.
+ * Environment variable OVERRIDE: CCCLAW_KERNEL_PATH can override the path.
  */
 export function getOpenClawDir(): string {
+  // Production (packaged): from resources/openclaw (copied by electron-builder extraResources)
   if (getElectronApp().isPackaged) {
     return join(process.resourcesPath, 'openclaw');
   }
-  // Development: use node_modules/openclaw
-  return join(__dirname, '../../node_modules/openclaw');
+  // Development: use npm package (build/openclaw has ESM/CJS module conflicts)
+  return join(getElectronApp().getAppPath(), 'node_modules', 'openclaw');
 }
 
 /**

@@ -36,6 +36,9 @@ importers:
       posthog-node:
         specifier: ^5.28.0
         version: 5.28.5
+      tslog:
+        specifier: ^4.9.3
+        version: 4.10.2
       ws:
         specifier: ^8.19.0
         version: 8.20.0

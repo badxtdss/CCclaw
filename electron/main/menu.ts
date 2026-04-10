@@ -182,12 +182,12 @@ export function createMenu(): void {
         {
           label: 'Report Issue',
           click: async () => {
-            await shell.openExternal('https://github.com/ValueCell-ai/ClawX/issues');
+            await shell.openExternal('https://github.com/ValueCell-ai/CCCLAW/issues');
           },
         },
         { type: 'separator' },
         {
-          label: 'OpenClaw Documentation',
+          label: 'CCCLAW Documentation',
           click: async () => {
             await shell.openExternal('https://docs.openclaw.ai');
           },

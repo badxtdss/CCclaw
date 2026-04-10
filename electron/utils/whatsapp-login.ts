@@ -11,14 +11,13 @@ const require = createRequire(import.meta.url);
 // Resolve dependencies from OpenClaw package context (pnpm-safe)
 const openclawPath = getOpenClawDir();
 const openclawResolvedPath = getOpenClawResolvedDir();
-// Primary: resolves from openclaw's real (dereferenced) path in pnpm store.
+// Primary: resolves from openclaw's real (dereferenced) path.
 // In packaged builds this is the flat `resources/openclaw/node_modules/`.
 const openclawRequire = createRequire(join(openclawResolvedPath, 'package.json'));
-// Fallback: resolves from the symlink path (`node_modules/openclaw`).
-// In dev mode, Node walks UP from here to `<project>/node_modules/`, which
-// contains ClawX's own devDependencies — packages that are NOT deps of openclaw
-// (e.g. @whiskeysockets/baileys) become resolvable through pnpm hoisting.
+// Fallback: resolves from the openclaw directory's package.json context.
 const projectRequire = createRequire(join(openclawPath, 'package.json'));
+// Extra fallback: CCCLAW Electron app's own node_modules (for app-specific deps like baileys)
+const ccclawAppRequire = createRequire(join(__dirname, '../../package.json'));
 
 function resolveOpenClawPackageJson(packageName: string): string {
     const specifier = `${packageName}/package.json`;
@@ -26,34 +25,62 @@ function resolveOpenClawPackageJson(packageName: string): string {
     try {
         return openclawRequire.resolve(specifier);
     } catch { /* fall through */ }
-    // 2. Fallback to project-level deps (works in dev mode for ClawX devDependencies)
+    // 2. Fallback to openclaw directory context
     try {
         return projectRequire.resolve(specifier);
+    } catch { /* fall through */ }
+    // 3. Fallback to CCCLAW Electron app's own node_modules
+    try {
+        return ccclawAppRequire.resolve(specifier);
     } catch (err) {
         const reason = err instanceof Error ? err.message : String(err);
         throw new Error(
-            `Failed to resolve "${packageName}" from OpenClaw context. ` +
+            `Failed to resolve "${packageName}" from CCCLAW context. ` +
             `openclawPath=${openclawPath}, resolvedPath=${openclawResolvedPath}. ${reason}`,
             { cause: err }
         );
     }
 }
 
-const baileysPath = dirname(resolveOpenClawPackageJson('@whiskeysockets/baileys'));
-const qrCodeModulePath = openclawRequire.resolve('qrcode-terminal/vendor/QRCode/index.js');
-const qrErrorCorrectLevelPath = openclawRequire.resolve('qrcode-terminal/vendor/QRCode/QRErrorCorrectLevel.js');
+let baileysPath: string | null = null;
+let qrCodeModulePath: string | null = null;
+let qrErrorCorrectLevelPath: string | null = null;
 
-// Load Baileys dependencies dynamically
-const {
-    default: makeWASocket,
-    useMultiFileAuthState: initAuth, // Rename to avoid React hook linter error
-    DisconnectReason,
-    fetchLatestBaileysVersion
-} = require(baileysPath);
+try {
+    baileysPath = dirname(resolveOpenClawPackageJson('@whiskeysockets/baileys'));
+} catch { /* WhatsApp support not available — baileys not installed */ }
+try {
+    qrCodeModulePath = openclawRequire.resolve('qrcode-terminal/vendor/QRCode/index.js');
+} catch { /* qrcode-terminal not available */ }
+try {
+    qrErrorCorrectLevelPath = openclawRequire.resolve('qrcode-terminal/vendor/QRCode/QRErrorCorrectLevel.js');
+} catch { /* qrcode-terminal not available */ }
 
-// Load QRCode dependencies dynamically
-const QRCodeModule = require(qrCodeModulePath);
-const QRErrorCorrectLevelModule = require(qrErrorCorrectLevelPath);
+// Load Baileys dependencies dynamically (only if available)
+let makeWASocket: any = null;
+let initAuth: any = null;
+let DisconnectReason: any = null;
+let fetchLatestBaileysVersion: any = null;
+let QRCodeModule: any = null;
+let QRErrorCorrectLevelModule: any = null;
+
+if (baileysPath) {
+    try {
+        const baileys = require(baileysPath);
+        makeWASocket = baileys.default;
+        initAuth = baileys.useMultiFileAuthState;
+        DisconnectReason = baileys.DisconnectReason;
+        fetchLatestBaileysVersion = baileys.fetchLatestBaileysVersion;
+    } catch (err) {
+        console.warn('[WhatsAppLogin] Failed to load baileys:', err);
+    }
+}
+if (qrCodeModulePath) {
+    try { QRCodeModule = require(qrCodeModulePath); } catch { /* ignore */ }
+}
+if (qrErrorCorrectLevelPath) {
+    try { QRErrorCorrectLevelModule = require(qrErrorCorrectLevelPath); } catch { /* ignore */ }
+}
 
 // Types from Baileys (approximate since we don't have types for dynamic require)
 interface BaileysError extends Error {
@@ -199,6 +226,10 @@ export class WhatsAppLoginManager extends EventEmitter {
     private retryCount: number = 0;
     private maxRetries: number = 5;
 
+    get isAvailable(): boolean {
+        return !!(makeWASocket && initAuth && DisconnectReason && fetchLatestBaileysVersion && QRCodeModule);
+    }
+
     constructor() {
         super();
     }
@@ -220,6 +251,11 @@ export class WhatsAppLoginManager extends EventEmitter {
      * Start WhatsApp pairing process
      */
     async start(accountId: string = 'default'): Promise<void> {
+        if (!this.isAvailable) {
+            this.emit('error', 'WhatsApp support is not available. Install @whiskeysockets/baileys to enable.');
+            return;
+        }
+
         if (this.active && this.accountId === accountId) {
             // Already running for this account, emit current QR if available
             if (this.qr) {
@@ -297,7 +333,7 @@ export class WhatsAppLoginManager extends EventEmitter {
                 logger: pino({ level: 'silent' }), // Silent logger
                 connectTimeoutMs: 60000,
                 // mobile: false,
-                // browser: ['ClawX', 'Chrome', '1.0.0'],
+                // browser: ['CCCLAW', 'Chrome', '1.0.0'],
             });
 
             let connectionOpened = false;

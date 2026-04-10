@@ -43,7 +43,7 @@ function clearHistoryPoll(): void {
 // [media attached: <path> ...] reference in the Gateway's user message text).
 // Keying by path avoids the race condition of keying by runId (which is only
 // available after the RPC returns, but history may load before that).
-const IMAGE_CACHE_KEY = 'clawx:image-cache';
+const IMAGE_CACHE_KEY = 'ccclaw:image-cache';
 const IMAGE_CACHE_MAX = 100; // max entries to prevent unbounded growth
 
 function loadImageCache(): Map<string, AttachedFileMeta> {
@@ -77,14 +77,34 @@ function upsertImageCacheEntry(filePath: string, file: Omit<AttachedFileMeta, 'f
 
 /** Extract plain text from message content (string or content blocks) */
 function getMessageText(content: unknown): string {
-  if (typeof content === 'string') return content;
-  if (Array.isArray(content)) {
-    return (content as Array<{ type?: string; text?: string }>)
+  let raw = '';
+  if (typeof content === 'string') raw = content;
+  else if (Array.isArray(content)) {
+    raw = (content as Array<{ type?: string; text?: string }>)
       .filter(b => b.type === 'text' && b.text)
       .map(b => b.text!)
       .join('\n');
   }
-  return '';
+  if (!raw) return '';
+
+  // Strip tool outputs, code blocks, and system markers for clean labels
+  let text = raw;
+  // Remove tool_use/tool_result blocks
+  text = text.replace(/\[tool_use[^\]]*\][\s\S]*?\[\/tool_use\]/gi, '');
+  text = text.replace(/\[tool_result[^\]]*\][\s\S]*?\[\/tool_result\]/gi, '');
+  // Remove fenced code blocks
+  text = text.replace(/```[\s\S]*?```/g, '');
+  // Remove inline code
+  text = text.replace(/`[^`]+`/g, '');
+  // Remove JSON-like content
+  text = text.replace(/\{[\s\S]*?\}/g, '');
+  // Remove markdown images/links
+  text = text.replace(/!\[[^\]]*\]\([^)]*\)/g, '');
+  text = text.replace(/\[[^\]]*\]\([^)]*\)/g, '');
+  // Clean whitespace
+  text = text.replace(/\s+/g, ' ').trim();
+
+  return text;
 }
 
 /** Extract media file refs from [media attached: <path> (<mime>) | ...] patterns */

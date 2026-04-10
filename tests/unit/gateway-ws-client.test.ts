@@ -93,7 +93,7 @@ describe('connectGatewaySocket', () => {
     const onHandshakeComplete = vi.fn();
 
     const connectionPromise = connectGatewaySocket({
-      port: 18789,
+      port: 18799,
       deviceIdentity: null,
       platform: 'win32',
       pendingRequests,
@@ -148,7 +148,7 @@ describe('connectGatewaySocket', () => {
     const pendingRequests = new Map();
 
     const connectionPromise = connectGatewaySocket({
-      port: 18789,
+      port: 18799,
       deviceIdentity: null,
       platform: 'win32',
       pendingRequests,

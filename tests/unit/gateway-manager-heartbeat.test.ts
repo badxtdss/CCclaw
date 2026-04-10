@@ -31,7 +31,7 @@ describe('GatewayManager heartbeat recovery', () => {
     (manager as unknown as { shouldReconnect: boolean }).shouldReconnect = true;
     (manager as unknown as { status: { state: string; port: number } }).status = {
       state: 'running',
-      port: 18789,
+      port: 18799,
     };
 
     (manager as unknown as { startPing: () => void }).startPing();
@@ -59,7 +59,7 @@ describe('GatewayManager heartbeat recovery', () => {
     (manager as unknown as { shouldReconnect: boolean }).shouldReconnect = true;
     (manager as unknown as { status: { state: string; port: number } }).status = {
       state: 'running',
-      port: 18789,
+      port: 18799,
     };
 
     (manager as unknown as { startPing: () => void }).startPing();
