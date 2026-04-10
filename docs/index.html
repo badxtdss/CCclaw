@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCclaw — 让 AI 像程序员一样思考</title>
+<meta name="description" content="基于 OpenClaw 的 AI 编程助手，拥有 Claude Code 级别的编程工作流。开源、多渠道、可自定义模型。">
+<meta property="og:title" content="CCclaw — AI 编程助手">
+<meta property="og:description" content="让 AI 像专业程序员一样思考和工作">
+<meta property="og:image" content="https://raw.githubusercontent.com/badxtdss/CCclaw/main/assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --bg: #0a0a0a;
+  --card: #111;
+  --border: #1a1a1a;
+  --accent: #22c55e;
+  --accent-dim: #16a34a;
+  --text: #e5e5e5;
+  --text-dim: #777;
+  --text-bright: #fff;
+  --radius: 16px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', -apple-system, 'SF Pro', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ========== NAV ========== */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(10,10,10,0.8); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px; height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+nav .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; color: var(--text-bright); }
+nav .logo img { width: 28px; }
+nav .links { display: flex; gap: 28px; }
+nav .links a { color: var(--text-dim); font-size: 0.9rem; font-weight: 500; }
+nav .links a:hover { color: var(--text-bright); text-decoration: none; }
+
+/* ========== HERO ========== */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 120px 20px 80px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(34,197,94,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero img.logo {
+  width: 120px; margin-bottom: 32px;
+  filter: drop-shadow(0 0 60px rgba(34,197,94,0.25));
+  animation: pulse 3s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { filter: drop-shadow(0 0 60px rgba(34,197,94,0.2)); }
+  50% { filter: drop-shadow(0 0 80px rgba(34,197,94,0.35)); }
+}
+.hero h1 {
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-weight: 900; color: var(--text-bright);
+  letter-spacing: -3px; line-height: 1.1;
+}
+.hero h1 .green { color: var(--accent); }
+.hero p.tagline {
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  color: var(--text-dim); margin: 20px 0 48px;
+  max-width: 640px; font-weight: 400;
+}
+.hero .cta { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 16px 36px; border-radius: 12px;
+  font-size: 1rem; font-weight: 600; font-family: inherit;
+  border: none; cursor: pointer; transition: all 0.2s;
+}
+.btn-primary { background: var(--accent); color: #000; }
+.btn-primary:hover { background: var(--accent-dim); text-decoration: none; transform: translateY(-1px); box-shadow: 0 8px 30px rgba(34,197,94,0.2); }
+.btn-ghost { background: transparent; color: var(--text); border: 1px solid #333; }
+.btn-ghost:hover { border-color: #555; text-decoration: none; color: var(--text-bright); }
+
+/* ========== SECTIONS ========== */
+section { max-width: 1100px; margin: 0 auto; padding: 100px 24px; }
+.label {
+  display: inline-block; font-size: 0.75rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 2px; color: var(--accent);
+  margin-bottom: 12px;
+}
+h2 { font-size: 2.5rem; font-weight: 800; color: var(--text-bright); letter-spacing: -1px; margin-bottom: 16px; }
+.desc { color: var(--text-dim); font-size: 1.1rem; max-width: 640px; margin-bottom: 56px; }
+
+/* ========== FEATURE GRID ========== */
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px;
+  transition: all 0.2s;
+}
+.card:hover { border-color: #333; transform: translateY(-2px); }
+.card .icon { font-size: 2rem; margin-bottom: 14px; }
+.card h3 { font-size: 1.05rem; font-weight: 700; color: var(--text-bright); margin-bottom: 8px; }
+.card p { color: var(--text-dim); font-size: 0.9rem; line-height: 1.6; }
+
+/* Large feature card */
+.card-lg { grid-column: span 2; }
+@media (max-width: 600px) { .card-lg { grid-column: span 1; } }
+.card-lg .demo {
+  background: #0d0d0d; border-radius: 10px; padding: 20px;
+  margin-top: 16px; font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.85rem; line-height: 1.8;
+}
+.card-lg .demo .g { color: var(--accent); }
+.card-lg .demo .y { color: #fbbf24; }
+.card-lg .demo .dim { color: #555; }
+.card-lg .demo .w { color: var(--text); }
+
+/* Tags */
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.tag {
+  background: rgba(34,197,94,0.08); color: var(--accent);
+  padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 500;
+  font-family: 'SF Mono', monospace;
+}
+
+/* ========== COMPARE ========== */
+.table-wrap { overflow-x: auto; margin-top: 24px; }
+table.cmp {
+  width: 100%; border-collapse: collapse;
+  background: var(--card); border-radius: var(--radius); overflow: hidden;
+}
+table.cmp th { background: #151515; padding: 16px 20px; text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); font-weight: 600; }
+table.cmp td { padding: 14px 20px; border-top: 1px solid var(--border); font-size: 0.9rem; }
+table.cmp .yes { color: var(--accent); font-weight: 600; }
+table.cmp .no { color: #444; }
+table.cmp tr.me td { color: var(--text-bright); font-weight: 600; }
+
+/* ========== INSTALL ========== */
+.code-block {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px 28px;
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  font-size: 0.95rem; line-height: 1.8; max-width: 700px;
+}
+.code-block .prompt { color: var(--accent); }
+.code-block .cmd { color: var(--text-bright); }
+.code-block .out { color: var(--accent-dim); }
+
+/* ========== DOWNLOAD ========== */
+.dl-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.dl-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 32px; text-align: center;
+  transition: all 0.2s;
+}
+.dl-card:hover { border-color: #333; }
+.dl-card .plat { font-size: 2.5rem; margin-bottom: 12px; }
+.dl-card h3 { color: var(--text-bright); font-size: 1rem; margin-bottom: 4px; }
+.dl-card .meta { color: var(--text-dim); font-size: 0.8rem; margin-bottom: 20px; }
+
+/* ========== FOOTER ========== */
+footer {
+  text-align: center; padding: 60px 20px 40px;
+  color: var(--text-dim); font-size: 0.82rem;
+  border-top: 1px solid var(--border);
+}
+footer .links { margin-bottom: 12px; }
+footer a { color: var(--text-dim); margin: 0 12px; }
+footer a:hover { color: var(--text); }
+
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  nav .links { display: none; }
+  section { padding: 64px 16px; }
+  h2 { font-size: 1.8rem; }
+  .hero { padding: 100px 16px 60px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <img src="https://raw.githubusercontent.com/badxtdss/CCclaw/main/assets/logo.png" alt="CCclaw"> CCclaw
+  </div>
+  <div class="links">
+    <a href="#features">功能</a>
+    <a href="#compare">对比</a>
+    <a href="#download">下载</a>
+    <a href="https://github.com/badxtdss/CCclaw">GitHub</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <img src="https://raw.githubusercontent.com/badxtdss/CCclaw/main/assets/logo.png" alt="CCclaw" class="logo">
+  <h1>让 AI 像<span class="green">程序员</span>一样<br>思考和工作。</h1>
+  <p class="tagline">基于 OpenClaw 构建，整合 Claude Code 级别的编程工作流。<br>开源 · 多渠道 · 可自定义模型</p>
+  <div class="cta">
+    <a href="#download" class="btn btn-primary">⬇️ 下载桌面版</a>
+    <a href="https://github.com/badxtdss/CCclaw" class="btn btn-ghost">GitHub →</a>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="label">核心能力</div>
+  <h2>不只是写代码，是工作流思维</h2>
+  <p class="desc">CCclaw 不是另一个代码补全工具。它拥有完整的编程工作流——先理解、再规划、后执行。</p>
+
+  <div class="grid">
+
+    <!-- Plan Mode (large) -->
+    <div class="card card-lg">
+      <div class="icon">🧠</div>
+      <h3>Plan Mode — 先规划再执行</h3>
+      <p>3 步以上的任务自动进入规划模式。AI 先读代码、理解架构、输出方案，等你确认后再动手。简单修复直接跳过，不啰嗦。</p>
+      <div class="demo">
+        <span class="dim">你:</span> <span class="w">"给这个接口加重试机制"</span><br><br>
+        <span class="dim">传统 AI:</span> <span class="w">直接开始改代码……改了一半发现改错了 😅</span><br>
+        <span class="g">CCclaw:</span> <span class="w">1. 读代码 → 2. 理解架构 → 3. 出方案</span><br>
+        <span class="w">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4. 等你确认 ✅ → 5. 再动手</span>
+      </div>
+    </div>
+
+    <!-- Git Safety -->
+    <div class="card">
+      <div class="icon">🔒</div>
+      <h3>Git 安全协议</h3>
+      <p>禁止 <code>force push</code>、<code>reset hard</code>、<code>--no-verify</code>。Commit 前必须先检查 status + diff + log。</p>
+    </div>
+
+    <!-- Task Tracking -->
+    <div class="card">
+      <div class="icon">📋</div>
+      <h3>任务追踪</h3>
+      <p>多步任务自动创建清单，实时更新状态。同一时间只有一个「进行中」，卡住了自动标阻塞。</p>
+    </div>
+
+    <!-- LSP -->
+    <div class="card card-lg">
+      <div class="icon">🎯</div>
+      <h3>LSP 语言服务器</h3>
+      <p>不是 grep 瞎搜，是精准代码导航。用 TypeScript Compiler API 实现，8 种操作覆盖所有代码理解场景。</p>
+      <div class="tags">
+        <span class="tag">goto 定义</span>
+        <span class="tag">查找引用</span>
+        <span class="tag">悬停签名</span>
+        <span class="tag">符号搜索</span>
+        <span class="tag">实现跳转</span>
+        <span class="tag">调入层级</span>
+        <span class="tag">调出层级</span>
+        <span class="tag">全文搜索</span>
+      </div>
+    </div>
+
+    <!-- Read-only -->
+    <div class="card">
+      <div class="icon">🔍</div>
+      <h3>只读探索</h3>
+      <p>理解代码时只读不改。避免「看看代码 → 手滑改了 → 改坏了」的经典翻车。</p>
+    </div>
+
+    <!-- Notebook -->
+    <div class="card">
+      <div class="icon">📓</div>
+      <h3>Notebook 编辑</h3>
+      <p>直接读写 .ipynb 文件，增删改 cell。做数据分析不用手动切 Jupyter。</p>
+    </div>
+
+    <!-- Context -->
+    <div class="card">
+      <div class="icon">💾</div>
+      <h3>上下文管理</h3>
+      <p>会话记忆 · 智能压缩 · 记忆提取。长对话不丢上下文，自动从对话中保留关键信息。</p>
+    </div>
+
+    <!-- Multi-channel -->
+    <div class="card">
+      <div class="icon">💬</div>
+      <h3>多渠道接入</h3>
+      <p>微信、飞书、QQ、Discord、Telegram、Slack、Signal……在任何地方都能和 AI 编程。</p>
+    </div>
+
+    <!-- Brief -->
+    <div class="card">
+      <div class="icon">🔗</div>
+      <h3>Brief 附件</h3>
+      <p>任务生成的文件自动附带发送。图片、日志、报告——不用手动找路径。</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section id="compare">
+  <div class="label">对比</div>
+  <h2>和现有方案的区别</h2>
+  <p class="desc">CCclaw 不是另一个 Copilot。它是有工作流思维的编程助手。</p>
+
+  <div class="table-wrap">
+  <table class="cmp">
+    <tr>
+      <th></th>
+      <th>Cursor / Copilot</th>
+      <th>Claude Code</th>
+      <th>CCclaw</th>
+    </tr>
+    <tr>
+      <td>先规划再执行</td>
+      <td class="no">❌</td>
+      <td class="yes">✅</td>
+      <td class="yes">✅</td>
+    </tr>
+    <tr>
+      <td>LSP 代码导航</td>
+      <td class="yes">✅</td>
+      <td class="yes">✅</td>
+      <td class="yes">✅</td>
+    </tr>
+    <tr>
+      <td>多渠道接入</td>
+      <td class="no">❌</td>
+      <td class="no">❌</td>
+      <td class="yes">✅</td>
+    </tr>
+    <tr>
+      <td>持久化记忆</td>
+      <td class="no">❌</td>
+      <td class="no">有限</td>
+      <td class="yes">✅</td>
+    </tr>
+    <tr>
+      <td>定时任务</td>
+      <td class="no">❌</td>
+      <td class="yes">✅</td>
+      <td class="yes">✅</td>
+    </tr>
+    <tr>
+      <td>开源</td>
+      <td class="no">❌</td>
+      <td class="no">❌</td>
+      <td class="yes">✅ Apache 2.0</td>
+    </tr>
+    <tr>
+      <td>自定义模型</td>
+      <td class="no">有限</td>
+      <td class="no">❌</td>
+      <td class="yes">✅</td>
+    </tr>
+  </table>
+  </div>
+</section>
+
+<!-- DOWNLOAD -->
+<section id="download">
+  <div class="label">下载</div>
+  <h2>获取 CCclaw</h2>
+  <p class="desc">v0.3.5 · macOS + Windows · 即开即用</p>
+
+  <div class="dl-cards">
+    <div class="dl-card">
+      <div class="plat">🍎</div>
+      <h3>macOS Apple Silicon</h3>
+      <p class="meta">M1 / M2 / M3 / M4 · 144 MB</p>
+      <a href="https://github.com/badxtdss/CCclaw/releases/download/v0.3.5/CCCLAW-0.3.4-mac-arm64.dmg" class="btn btn-primary">下载 .dmg</a>
+    </div>
+    <div class="dl-card">
+      <div class="plat">💻</div>
+      <h3>macOS Intel</h3>
+      <p class="meta">x86_64 · 149 MB</p>
+      <a href="https://github.com/badxtdss/CCclaw/releases/download/v0.3.5/CCCLAW-0.3.4-mac-x64.dmg" class="btn btn-primary">下载 .dmg</a>
+    </div>
+    <div class="dl-card">
+      <div class="plat">🪟</div>
+      <h3>Windows x64</h3>
+      <p class="meta">x86_64 · 167 MB</p>
+      <a href="https://github.com/badxtdss/CCclaw/releases/download/v0.3.5/CCCLAW-0.3.4-win-x64.exe" class="btn btn-primary">下载 .exe</a>
+    </div>
+  </div>
+
+  <p style="text-align:center;margin-top:28px;color:var(--text-dim);font-size:0.9rem;">
+    <a href="https://github.com/badxtdss/CCclaw/releases">查看所有版本</a>
+  </p>
+</section>
+
+<!-- CLI -->
+<section>
+  <div class="label">CLI 安装</div>
+  <h2>也可以用命令行</h2>
+  <p class="desc">适合服务器或无桌面环境。</p>
+
+  <div class="code-block">
+    <span class="prompt">$</span> <span class="cmd">curl -fsSL https://raw.githubusercontent.com/badxtdss/CCclaw/main/install.sh | bash</span><br><br>
+    <span class="out">✅ CCclaw 安装成功</span><br><br>
+    <span class="prompt">$</span> <span class="cmd">ccclaw</span><br>
+    <span class="out">→ http://127.0.0.1:18788</span>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="links">
+    <a href="https://github.com/badxtdss/CCclaw">GitHub</a>
+    <a href="https://github.com/badxtdss/CCclaw/releases">Releases</a>
+    <a href="https://github.com/badxtdss/CCclaw/issues">Issues</a>
+    <a href="https://github.com/badxtdss/openclaw-cc-rules">CC Rules</a>
+  </div>
+  <p>基于 <a href="https://github.com/openclaw/openclaw">OpenClaw</a> 构建 · Apache 2.0 License · CCclaw v0.3.5</p>
+</footer>
+
+</body>
+</html>
